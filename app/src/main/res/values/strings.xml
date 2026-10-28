@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">DontTouchMyPhone</string>
+    <string name="screen_title">DON\'T TOUCH MY PHONE</string>
+    <string name="screen_description">Turn monitoring on, then move your phone to test the alert.</string>
+    <string name="monitoring_off">Monitoring is OFF</string>
+    <string name="start_monitoring">Start Monitoring</string>
+    <string name="stop_monitoring">Stop Monitoring</string>
+    <string name="view_motion">View Last Motion</string>
+
 </resources>
