@@ -239,7 +239,7 @@ public class MotionService extends Service implements SensorEventListener {
         }
 
         // Opens the MainActivity when the notification is tapped
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, MotionDetailsActivity.class);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,

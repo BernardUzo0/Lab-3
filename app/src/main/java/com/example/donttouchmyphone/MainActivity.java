@@ -57,11 +57,12 @@ public class MainActivity extends AppCompatActivity {
 // Details button
         findViewById(R.id.buttonDetails).setOnClickListener(v -> {
 
-            Toast.makeText(
+            Intent detailsIntent = new Intent(
                     this,
-                    "Motion details will be added later",
-                    Toast.LENGTH_SHORT
-            ).show();
+                    MotionDetailsActivity.class
+            );
+
+            startActivity(detailsIntent);
 
         });
     }

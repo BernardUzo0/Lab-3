@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:fitsSystemWindows="true"
+    android:background="#F5F8FD">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="MOTION DETAILS"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="#12345B"
+        android:gravity="center"
+        android:layout_marginBottom="40dp" />
+
+    <TextView
+        android:id="@+id/textMotionStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Motion Status"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#1B5E9C"
+        android:gravity="center"
+        android:layout_marginBottom="30dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Date and Time"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#12345B"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/textMotionTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No movement recorded"
+        android:textSize="18sp"
+        android:textColor="#4A6078"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="30dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Change in Acceleration"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#12345B"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/textMotionStrength"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="0.00 m/s²"
+        android:textSize="18sp"
+        android:textColor="#4A6078"
+        android:gravity="center"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>
