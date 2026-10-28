@@ -17,6 +17,13 @@ import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.SystemClock;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 
 
 public class MotionService extends Service implements SensorEventListener {
@@ -27,6 +34,18 @@ public class MotionService extends Service implements SensorEventListener {
     private HandlerThread sensorThread;
 
     private boolean sensorRegistered = false;
+    private static final float MOVEMENT_THRESHOLD = 2.5f;
+    private static final long ALERT_COOLDOWN_MS = 5000;
+
+    private static final String ALERT_CHANNEL_ID = "motion_alert_channel";
+
+    private float previousX;
+    private float previousY;
+    private float previousZ;
+
+    private boolean firstReading = true;
+    private long lastAlertTime = 0;
+
 
     private static final String CHANNEL_ID = "motion_monitor_channel";
 
@@ -62,6 +81,16 @@ public class MotionService extends Service implements SensorEventListener {
         );
 
         manager.createNotificationChannel(channel);
+
+// Creates a different notification channel for the movement alerts
+        NotificationChannel alertChannel = new NotificationChannel(
+                ALERT_CHANNEL_ID,
+                "Movement Alerts",
+                NotificationManager.IMPORTANCE_HIGH
+        );
+
+        manager.createNotificationChannel(alertChannel);
+
 
         Intent homeIntent = new Intent(this, MainActivity.class);
 
@@ -134,6 +163,39 @@ public class MotionService extends Service implements SensorEventListener {
                 + " X=" + x
                 + " Y=" + y
                 + " Z=" + z);
+
+// Calculates any change in the acceleration
+        if (!firstReading) {
+
+            float dx = x - previousX;
+            float dy = y - previousY;
+            float dz = z - previousZ;
+
+            float change = (float) Math.sqrt(
+                    dx * dx + dy * dy + dz * dz
+            );
+
+            long currentTime = SystemClock.elapsedRealtime();
+
+            if (change >= MOVEMENT_THRESHOLD &&
+                    currentTime - lastAlertTime >= ALERT_COOLDOWN_MS) {
+
+                lastAlertTime = currentTime;
+
+                Log.d(TAG, "Motion detected! Change = " + change);
+
+                sendMotionNotification(change);
+            }
+
+        } else {
+            firstReading = false;
+        }
+
+// Saves the current readings for the next comparison
+        previousX = x;
+        previousY = y;
+        previousZ = z;
+
     }
 
     @Override
@@ -144,6 +206,65 @@ public class MotionService extends Service implements SensorEventListener {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    private void sendMotionNotification(float change) {
+
+        // Get the current date and time
+        long currentTime = System.currentTimeMillis();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "dd MMM yyyy, HH:mm:ss",
+                Locale.getDefault()
+        );
+
+        String time = dateFormat.format(new Date(currentTime));
+
+        // Saves movement details for the next activity
+        getSharedPreferences("motion_prefs", MODE_PRIVATE)
+                .edit()
+                .putLong("last_motion_time_ms", currentTime)
+                .putFloat("last_motion_change", change)
+                .apply();
+
+        Log.d(TAG, "Motion detected at " + time);
+
+        // Checks for notification permission
+        if (Build.VERSION.SDK_INT >= 33 &&
+                checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+            Log.w(TAG, "Notification permission not granted");
+            return;
+        }
+
+        // Opens the MainActivity when the notification is tapped
+        Intent intent = new Intent(this, MainActivity.class);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                20,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT |
+                        PendingIntent.FLAG_IMMUTABLE
+        );
+
+        // Creates a motion alert
+        Notification notification = new Notification.Builder(
+                this,
+                ALERT_CHANNEL_ID
+        )
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle("Motion Detected!")
+                .setContentText("Phone moved at " + time)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build();
+
+        NotificationManager manager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        manager.notify(2, notification);
     }
 
     @Override
